@@ -1,0 +1,20 @@
+th {
+  font-family: 'Poppins', cursive;
+  font-size: 13px;
+  line-height: 2em;
+}
+
+td {
+  font-family: 'Poppins', cursive;
+  font-size: 13px;
+}
+
+h2 {
+  text-transform: uppercase;
+  font-family: 'Poppins', cursive;
+  font-size: 20px;
+}
+
+.body {
+  background-color: aliceblue;
+}

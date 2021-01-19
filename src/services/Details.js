@@ -3,7 +3,6 @@ import { apiUrl } from "../config.json";
 const apiEndpoint = `${apiUrl}`;
 
 
-export async function getDetails(page) {
-    let response = await http.get(`${apiEndpoint}?page=${page}`);
-    return response
+export function getDetails() {
+    return http.get(apiEndpoint);
 }

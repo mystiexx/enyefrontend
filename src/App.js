@@ -1,22 +1,34 @@
 import React, { Component } from "react";
-import { Container, Table, Card, Form, Spinner } from "react-bootstrap";
+import { Container, Card, Form, Spinner } from "react-bootstrap";
 import moment from "moment";
-import Pagination from "./Pagination";
+import Table from "@material-ui/core/Table";
+import TableBody from "@material-ui/core/TableBody";
+import TableCell from "@material-ui/core/TableCell";
+import TableContainer from "@material-ui/core/TableContainer";
+import TableHead from "@material-ui/core/TableHead";
+import TableRow from "@material-ui/core/TableRow";
+import Paper from "@material-ui/core/Paper";
+import TableHeader from "./components/TableHeader";
+import TablePagination from "@material-ui/core/TablePagination";
 import { getDetails } from "./services/Details";
 import "./App.css";
+import SearchComponent from "./components/SearchComponent";
 
 class App extends Component {
     constructor() {
         super();
         this.state = {
             data: [],
+            data2: [],
             loading: true,
+            page:0,
+            rowsPerPage: 20,
         };
     }
 
-    getList = async (page = 1) => {
-        let { data } = await getDetails(page);
-        this.setState({ data: data.records.profiles || [], size: data.size, loading: false });
+    getList = async () => {
+        let { data } = await getDetails();
+        this.setState({ data: data.records.profiles || [], data2: data.records.profiles ||  [],  loading: false });
     };
 
     handleSearch = (e) => {
@@ -24,7 +36,7 @@ class App extends Component {
         if (string === "") {
             this.setState({ data: this.state.data });
         } else {
-            let data = this.state.data.filter(
+            let data = this.state.data2.filter(
                 (content) =>
                     content.FirstName.toLowerCase().includes(string.toLowerCase()) ||
                     content.LastName.toLowerCase().includes(string.toLowerCase())
@@ -38,20 +50,40 @@ class App extends Component {
         if (string === "") {
             this.setState({ data: this.state.data });
         } else {
-            let data = this.state.data.filter((content) =>
-                content.Gender.toLowerCase().includes(string.toLowerCase())
+            let data = this.state.data2.filter((content) =>
+                content.Gender.toLowerCase() === string.toLowerCase()
             );
             this.setState({ data });
         }
     };
 
-   
+    handleFilter = (e) => {
+        let string = e.target.value;
+        if (string === "") {
+            this.setState({ data: this.state.data });
+        } else {
+            let data = this.state.data2.filter((content) =>
+                content.PaymentMethod.toLowerCase() === string.toLowerCase()
+            );
+            this.setState({ data });
+        }
+    };
+
+    handleChangePage = (event, newPage) => {
+        this.setState({page:newPage})
+    };
+
+    handleChangeRowsPerPage = (event) => {
+        this.setState({rowsPerPage: +event.target.value});
+        this.setState({page:0});
+    };
 
     componentDidMount() {
         this.getList();
     }
+
     render() {
-        const { data, size, loading } = this.state;
+        const { data,  loading, page, rowsPerPage } = this.state;
         return (
             <div className="body">
                 <Container className="p-5" fluid>
@@ -67,94 +99,91 @@ class App extends Component {
 
                             <Card>
                                 <Card.Body>
-                                 
-                                    <div className="d-flex justify-content-between">
-                                        <div>
-                                            <Form inline>
-                                                <Form.Label>Search:</Form.Label>
-                                                <Form.Control
-                                                    onChange={this.handleSearch}
-                                                    type="text"
-                                                    className="ml-2"
-                                                />
-                                            </Form>
-                                        </div>
-
-                                        <div>
-                                            <Form inline>
-                                                <Form.Label>Filter By:</Form.Label>
-                                                <Form.Control
-                                                    as="select"
-                                                    name="role"
-                                                    onChange={this.handleChange}
-                                                >
-                                                    <option value="" name="gender">
-                                                        -Gender-
-                                                    </option>
-                                                    <option value="Male" name="gender">
-                                                        Male
-                                                    </option>
-                                                    <option value="Female" name="gender">
-                                                        Female
-                                                    </option>
-                                                </Form.Control>
-                                            </Form>
-                                            {}
-                                        </div>
+                                    <div>
+                                        <SearchComponent 
+                                        search={this.handleSearch} 
+                                        filter={this.handleChange} 
+                                        content={data}
+                                        payment={this.handleFilter}
+                                        />
+                                      
                                     </div>
                                     <br />
-                                    <Table  borderd hover responsive size="sm">
-                                        <thead>
-                                            <tr>
-                                                <th>No.</th>
-                                                <th>First Name</th>
-                                                <th>Last Name</th>
-                                                <th>Gender</th>
-                                                <th>Latitude</th>
-                                                <th>Longitude</th>
-                                                <th>Credit Card Number</th>
-                                                <th>Credit Card Type</th>
-                                                <th>Email</th>
-                                                <th>Domain Name</th>
-                                                <th>Phone Number</th>
-                                                <th>Mac Address</th>
-                                                <th>URL</th>
-                                                <th>Username</th>
-                                                <th>Last Login</th>
-                                                <th>Payment Method</th>
-                                            </tr>
-                                        </thead>
+                                    <TableContainer component={Paper}>
+                                        <Table stickyHeader size="small" style={{ minWidth: 650 }}>
+                                            <TableHead>
+                                                <TableHeader />
+                                            </TableHead>
 
-                                        {data.map((data, i) => (
-                                            <tbody key={i}>
-                                                <tr key={i}>
-                                                    <td>{Math.round(i + 1)}</td>
-                                                    <td>{data.FirstName}</td>
-                                                    <td>{data.LastName}</td>
-                                                    <td>{data.Gender}</td>
-                                                    <td>{data.Latitude}</td>
-                                                    <td>{data.Longitude}</td>
-                                                    <td>{data.CreditCardNumber}</td>
-                                                    <td>{data.CreditCardType}</td>
-                                                    <td>{data.Email}</td>
-                                                    <td>{data.DomainName}</td>
-                                                    <td>{data.PhoneNumber}</td>
-                                                    <td>{data.MacAddress}</td>
-                                                    <td>{data.URL}</td>
-                                                    <td>{data.UserName}</td>
-                                                    <td> {moment(data.LastLogin).format("ll")}</td>
-                                                    <td>{data.PaymentMethod}</td>
-                                                </tr>
-                                            </tbody>
-                                        ))}
-                                    </Table>
+                                            {data.slice(page * rowsPerPage, page *  rowsPerPage + rowsPerPage).map((data, i) => (
+                                                <TableBody key={i}>
+                                                    <TableRow>
+                                                        <TableCell align="right">
+                                                            {Math.round(i + 1)}
+                                                        </TableCell>
+                                                        <TableCell align="right">
+                                                            {data.FirstName}
+                                                        </TableCell>
+                                                        <TableCell align="right">
+                                                            {data.LastName}
+                                                        </TableCell>
+                                                        <TableCell align="right">
+                                                            {data.Gender}
+                                                        </TableCell>
+                                                        <TableCell align="right">
+                                                            {data.Latitude}
+                                                        </TableCell>
+                                                        <TableCell align="right">
+                                                            {data.Longitude}
+                                                        </TableCell>
+                                                        <TableCell align="right">
+                                                            {data.CreditCardNumber}
+                                                        </TableCell>
+                                                        <TableCell align="right">
+                                                            {data.CreditCardType}
+                                                        </TableCell>
+                                                        <TableCell align="right">
+                                                            {data.Email}
+                                                        </TableCell>
+                                                        <TableCell align="right">
+                                                            {data.DomainName}
+                                                        </TableCell>
+                                                        <TableCell align="right">
+                                                            {data.PhoneNumber}
+                                                        </TableCell>
+                                                        <TableCell align="right">
+                                                            {data.MacAddress}
+                                                        </TableCell>
+                                                        <TableCell align="right">
+                                                            {data.URL}
+                                                        </TableCell>
+                                                        <TableCell align="right">
+                                                            {data.UserName}
+                                                        </TableCell>
+                                                        <TableCell align="right">
+                                                            {" "}
+                                                            {moment(data.LastLogin).format("ll")}
+                                                        </TableCell>
+                                                        <TableCell align="right">
+                                                            {data.PaymentMethod}
+                                                        </TableCell>
+                                                    </TableRow>
+                                                </TableBody>
+                                            ))}
+                                        </Table>
+                                    </TableContainer>
+                                    <TablePagination
+                                        rowsPerPageOptions={[25]}
+                                        component="div"
+                                        count={data.length}
+                                        rowsPerPage={rowsPerPage}
+                                        page={page}
+                                        onChangePage={this.handleChangePage}
+                                        onChangeRowsPerPage={this.handleChangeRowsPerPage}
+                                    />
                                 </Card.Body>
                             </Card>
-                            <Pagination
-                                total={size}
-                                per_page={20}
-                                pagination={page => this.getList(page)}
-                            />
+                         
                         </div>
                     )}
                 </Container>

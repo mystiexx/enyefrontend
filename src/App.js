@@ -10,9 +10,9 @@ import TableRow from "@material-ui/core/TableRow";
 import Paper from "@material-ui/core/Paper";
 import TableHeader from "./components/TableHeader";
 import TablePagination from "@material-ui/core/TablePagination";
-import { getDetails } from "./services/Details";
 import "./App.css";
 import SearchComponent from "./components/SearchComponent";
+import axios from 'axios'
 
 class App extends Component {
     constructor() {
@@ -21,14 +21,19 @@ class App extends Component {
             data: [],
             data2: [],
             loading: true,
-            page:0,
+            page: 0,
             rowsPerPage: 20,
         };
     }
 
-    getList = async () => {
-        let { data } = await getDetails();
-        this.setState({ data: data.records.profiles || [], data2: data.records.profiles ||  [],  loading: false });
+    async getList () {
+       const {data} = await  axios.get("https://api.enye.tech/v1/challenge/records")
+            this.setState({
+                data: data.records.profiles || [],
+                data2: data.records.profiles || [],
+                loading: false,
+            });
+            console.log(data);
     };
 
     handleSearch = (e) => {
@@ -50,8 +55,8 @@ class App extends Component {
         if (string === "") {
             this.setState({ data: this.state.data });
         } else {
-            let data = this.state.data2.filter((content) =>
-                content.Gender.toLowerCase() === string.toLowerCase()
+            let data = this.state.data2.filter(
+                (content) => content.Gender.toLowerCase() === string.toLowerCase()
             );
             this.setState({ data });
         }
@@ -62,20 +67,20 @@ class App extends Component {
         if (string === "") {
             this.setState({ data: this.state.data });
         } else {
-            let data = this.state.data2.filter((content) =>
-                content.PaymentMethod.toLowerCase() === string.toLowerCase()
+            let data = this.state.data2.filter(
+                (content) => content.PaymentMethod.toLowerCase() === string.toLowerCase()
             );
             this.setState({ data });
         }
     };
 
     handleChangePage = (event, newPage) => {
-        this.setState({page:newPage})
+        this.setState({ page: newPage });
     };
 
     handleChangeRowsPerPage = (event) => {
-        this.setState({rowsPerPage: +event.target.value});
-        this.setState({page:0});
+        this.setState({ rowsPerPage: +event.target.value });
+        this.setState({ page: 0 });
     };
 
     componentDidMount() {
@@ -83,7 +88,7 @@ class App extends Component {
     }
 
     render() {
-        const { data,  loading, page, rowsPerPage } = this.state;
+        const { data, loading, page, rowsPerPage } = this.state;
         return (
             <div className="body">
                 <Container className="p-5" fluid>
@@ -100,13 +105,12 @@ class App extends Component {
                             <Card>
                                 <Card.Body>
                                     <div>
-                                        <SearchComponent 
-                                        search={this.handleSearch} 
-                                        filter={this.handleChange} 
-                                        content={data}
-                                        payment={this.handleFilter}
+                                        <SearchComponent
+                                            search={this.handleSearch}
+                                            filter={this.handleChange}
+                                            content={data}
+                                            payment={this.handleFilter}
                                         />
-                                      
                                     </div>
                                     <br />
                                     <TableContainer component={Paper}>
@@ -115,61 +119,68 @@ class App extends Component {
                                                 <TableHeader />
                                             </TableHead>
 
-                                            {data.slice(page * rowsPerPage, page *  rowsPerPage + rowsPerPage).map((data, i) => (
-                                                <TableBody key={i}>
-                                                    <TableRow>
-                                                        <TableCell align="right">
-                                                            {Math.round(i + 1)}
-                                                        </TableCell>
-                                                        <TableCell align="right">
-                                                            {data.FirstName}
-                                                        </TableCell>
-                                                        <TableCell align="right">
-                                                            {data.LastName}
-                                                        </TableCell>
-                                                        <TableCell align="right">
-                                                            {data.Gender}
-                                                        </TableCell>
-                                                        <TableCell align="right">
-                                                            {data.Latitude}
-                                                        </TableCell>
-                                                        <TableCell align="right">
-                                                            {data.Longitude}
-                                                        </TableCell>
-                                                        <TableCell align="right">
-                                                            {data.CreditCardNumber}
-                                                        </TableCell>
-                                                        <TableCell align="right">
-                                                            {data.CreditCardType}
-                                                        </TableCell>
-                                                        <TableCell align="right">
-                                                            {data.Email}
-                                                        </TableCell>
-                                                        <TableCell align="right">
-                                                            {data.DomainName}
-                                                        </TableCell>
-                                                        <TableCell align="right">
-                                                            {data.PhoneNumber}
-                                                        </TableCell>
-                                                        <TableCell align="right">
-                                                            {data.MacAddress}
-                                                        </TableCell>
-                                                        <TableCell align="right">
-                                                            {data.URL}
-                                                        </TableCell>
-                                                        <TableCell align="right">
-                                                            {data.UserName}
-                                                        </TableCell>
-                                                        <TableCell align="right">
-                                                            {" "}
-                                                            {moment(data.LastLogin).format("ll")}
-                                                        </TableCell>
-                                                        <TableCell align="right">
-                                                            {data.PaymentMethod}
-                                                        </TableCell>
-                                                    </TableRow>
-                                                </TableBody>
-                                            ))}
+                                            {data
+                                                .slice(
+                                                    page * rowsPerPage,
+                                                    page * rowsPerPage + rowsPerPage
+                                                )
+                                                .map((data, i) => (
+                                                    <TableBody key={i}>
+                                                        <TableRow>
+                                                            <TableCell align="right">
+                                                                {Math.round(i + 1)}
+                                                            </TableCell>
+                                                            <TableCell align="right">
+                                                                {data.FirstName}
+                                                            </TableCell>
+                                                            <TableCell align="right">
+                                                                {data.LastName}
+                                                            </TableCell>
+                                                            <TableCell align="right">
+                                                                {data.Gender}
+                                                            </TableCell>
+                                                            <TableCell align="right">
+                                                                {data.Latitude}
+                                                            </TableCell>
+                                                            <TableCell align="right">
+                                                                {data.Longitude}
+                                                            </TableCell>
+                                                            <TableCell align="right">
+                                                                {data.CreditCardNumber}
+                                                            </TableCell>
+                                                            <TableCell align="right">
+                                                                {data.CreditCardType}
+                                                            </TableCell>
+                                                            <TableCell align="right">
+                                                                {data.Email}
+                                                            </TableCell>
+                                                            <TableCell align="right">
+                                                                {data.DomainName}
+                                                            </TableCell>
+                                                            <TableCell align="right">
+                                                                {data.PhoneNumber}
+                                                            </TableCell>
+                                                            <TableCell align="right">
+                                                                {data.MacAddress}
+                                                            </TableCell>
+                                                            <TableCell align="right">
+                                                                {data.URL}
+                                                            </TableCell>
+                                                            <TableCell align="right">
+                                                                {data.UserName}
+                                                            </TableCell>
+                                                            <TableCell align="right">
+                                                                {" "}
+                                                                {moment(data.LastLogin).format(
+                                                                    "ll"
+                                                                )}
+                                                            </TableCell>
+                                                            <TableCell align="right">
+                                                                {data.PaymentMethod}
+                                                            </TableCell>
+                                                        </TableRow>
+                                                    </TableBody>
+                                                ))}
                                         </Table>
                                     </TableContainer>
                                     <TablePagination
@@ -183,7 +194,6 @@ class App extends Component {
                                     />
                                 </Card.Body>
                             </Card>
-                         
                         </div>
                     )}
                 </Container>

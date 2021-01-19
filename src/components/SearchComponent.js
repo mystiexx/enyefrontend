@@ -4,7 +4,6 @@ import { Form } from "react-bootstrap";
 class SearchComponent extends Component {
     render() {
         const { search, filter, content, payment } = this.props;
-        console.log(content);
         return (
             <div className="d-flex justify-content-between">
                 <div>
